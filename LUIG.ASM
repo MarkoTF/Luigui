@@ -1,108 +1,163 @@
+STACK SEGMENT STACK
+    DB 64 DUP(?) ;Tama?o de la pila
+STACK ENDS
 
-; suma, resta, multiplicacion y division sin tomar en cuenta el acarreo
-; el 13,10 es un salto de linea
+DATOS SEGMENT
+	CADENAGRACIAS DB 10,13,"GRACIAS, VUELVA PRONTO!!!", 01H, 10,13,"$"
+    CADENA DB "Buenas, usted sabe que dia es? [s/n] --> ", "$"
+    CADENAMALA DB 10,13,10,13,"Usted a sido afectado severamente por la cuarentena", 10,13,"$"
+    CADENABUENA DB 10,13,"Felicidades, usted ha aguantado bien la cuarentena", 10,13,"$"
+    ARRAY DB 53H, 53H, 40H, 53H, 40H
+DATOS ENDS
 
-.model small
-.stack 100
-.data
-msj1 db 'Numero 1: ','$'
-msj2 db 13,10,'Numero 2: ','$'
-msj3 db 13,10,'Suma: ','$'
-msj4 db 13,10,'Resta: ','$'
-msj5 db 13,10,'Multiplicacion: ','$'
-msj6 db 13,10,'Division: ','$'
-linea db 13,10,'$'
-var1 db 0
-var2 db 0
-.code
-.startup
 
-call limpia
-mov ah,09h
-lea dx, msj1 ;desplegar numero 1:
-int 21h
+CODIGO SEGMENT
+    ASSUME CS:CODIGO,DS:DATOS,SS:STACK
 
-call leer ;lee primer numero
-sub al,30h ;restar 30h para obtener el numero
-mov var1,al ;lo guardo en var1
-mov ah,09h
-lea dx, msj2 ;desplegar numero 2:
-int 21h
+    COLORES MACRO COLOR ;MACRO QUE RECIBE UN PARAMETRO
+		PUSH AX ;PUSH SALVA EL CONTEXTO
+		PUSH BX ;METIENDO LOS VALORES DE LOS
+		PUSH CX
+		PUSH DX
 
-call leer ;lee segundo numero
-sub al,30h ;restar 30h para obtener segundo valor
-mov var2,al ;guardar en var2
-mov bl,var2 ;mover a bl
+		;CABIAR cOLOR
+       	MOV AX,0600H
+       	;MOV BH,53H ;fondo morado(5), letra azul(0)
+       	MOV BH,COLOR ;fondo morado(5), letra azul(0)
+       	MOV CX,0000H ;de pOSISCIÓN IZQUIERDA SUPERIOR
+       	MOV DX,184FH ;a posición derecha inferior
+       	INT 10H
 
-;******************* SUMA
-add bl,var1 ; realizo la suma de var2(bl) y var1 y el resultado queda en bl
-mov ah,09h
-lea dx,msj3 ;imprimir suma
-int 21h
-mov dl,bl ;pongo en dl el numero a imprimir var2(bl)
-add dl,30h ; agrego 30h para obtener el caracter    
-mov ah,02h ;imprime un caracter
-int 21h
+       	;FIJAR CURSOR EN POSISCION 00:00
+       	MOV AH,02h ;SOLICITOD DE CAMBIO DE POSISCION
+       	MOV BX,00 ;PAGINA NUMERO 0
+       	MOV DX,0000 ;HILERA 0, COLUMNA 0
+       	INT 10H
 
-;******************RESTA
-mov bl,var1
-sub bl,var2
-mov ah,09h
-lea dx,msj4 ;desplegar resta:
-int 21h
-mov dl,bl ;mover resta a dl para imprimir
-add dl,30h ;sumar 30 para obtener caracter
-mov ah,02h ;imprimir un caracter
-int 21h
+		POP DX ;ANTES DE SALIR DEL PROCEDIMIENTO
+		POP CX ;DEBERAS REGRESAR LOS VALORES
+		POP BX ;REGISTRO AL ORDEN INVERSO AL
+		POP AX ;QUE ENTRARON A LA PILA CON POP
+	ENDM ;FINALIZA LA MACRO
 
-;******************MULTIPLICACION
-mov ah,09h
-lea dx,msj5 ;desplegar mult
-int 21h
 
-mov al,var1 
-mov bl,var2
-mul bl ;mult al=al*bl
-mov dl,al ;mover al a dl para imprimir
-add dl,30h ;sumar 30 para obtener caracter
-mov ah,02h ;imprimir caracter
-int 21h
 
-;*****************DIVISION
-mov ah,09h
-lea dx,msj6 ;desplegar div
-int 21h
-xor ax,ax ;limpiamos el registro ax. 
-mov al,var2
-mov bl,al
-mov al,var1
-div bl ; divide AX/BX el resultado lo almacena en AX, el residuo queda en DX
-mov bl,al
-mov dl,bl
-add dl,30h
-mov ah,02h
-int 21h
-.exit
+MIPROC PROC FAR
+    PUSH DS 
+    SUB AX,AX ;PARA RESTA
+    PUSH AX
+    MOV AX,DATOS
+    MOV DS,AX
+    
+    LEA DX, CADENA ;aQU? COMIENZA MI VERDADERO PROGRAMA
+    MOV AH, 09H
+    INT 21H
 
-; ****************PROCEDIMIENTOS
-salto proc near
-mov ah,09h
-lea dx,linea
-int 21h
-mov dl,00h
-ret
-salto endp
+    ;LEE LA RESPUESTA
+    MOV AH, 07H
+    INT 21H
 
-leer proc near
-mov ah,01h;leer caracter desde el teclado
-int 21h;lee primer caracter
-ret
-leer endp
+    ;iMPRIME LA RESPUESTA
+    MOV AH, 02h
+    MOV DL, AL
+    INT 21H
 
-limpia proc near
-mov ah,00h
-mov al,03h
-int 10h
-ret
-limpia endp
-end
+    
+    ;sALTA SI ES "n"
+    CMP AL, "n"
+    JE L2
+
+    CMP AL, "s"
+    JE L1
+
+
+
+    
+    MOV SI, 00H
+    L1:	
+    	;RECUPERAR LA HORA DEL SISTEMA
+    	MOV AH,2CH
+    	INT 21H
+
+    	;RECUPERO LOS SEGUNDOS EN "AL"
+    	INC DH
+    	MOV AL, DH
+
+    	;INCREMENTO 1 APUNTADOR DEL ARRAY
+    	INC SI
+
+    	CMP SI, 04H
+    	JA L4;IMPRIMIR CADENA Y SALIR
+
+    	;cAMBIO DE COLOR
+    	COLORES ARRAY[SI]
+
+    ;CICLO PARA EL TIEMPO
+    L3:
+    	MOV AH,2CH
+    	INT 21H
+
+    	CMP AL, DH
+    	JB L1 ;salta si dh es mayor que al
+
+    	LOOP L3
+
+    L4:
+    	CALL BIENECHO
+
+    	CMP SI, 04H
+    	JA SALIR;SALIR
+
+    L2:
+
+    	COLORES 0FH ;Color de fondo negro, el color de letra blanco
+    	CALL MALECHO
+
+    SALIR:
+    	;CADENA DE GRACIAS
+    	MOV AH, 09H
+		LEA DX, CADENAGRACIAS
+		INT 21H
+    
+    	RET ;PARA RETORNAR EL CONTROL
+    
+MIPROC ENDP ;CIERRA MIPRC FAR
+
+
+MALECHO PROC NEAR 
+		PUSH AX 
+		PUSH BX 
+		PUSH CS 
+		PUSH DX
+
+		MOV AH, 09H
+		LEA DX, CADENAMALA
+		INT 21H
+
+		POP DX 
+		POP CX 
+		POP BX 
+		POP AX 
+		RET 
+MALECHO ENDP 
+
+BIENECHO PROC NEAR 
+		PUSH AX 
+		PUSH BX 
+		PUSH CS 
+		PUSH DX
+
+		MOV AH, 09H
+		LEA DX, CADENABUENA
+		INT 21H
+
+		POP DX 
+		POP CX 
+		POP BX 
+		POP AX 
+		RET 
+BIENECHO ENDP 
+
+
+CODIGO ENDS ;CIERRA EL SEGMENTO DE COTIGO
+END MIPROC
