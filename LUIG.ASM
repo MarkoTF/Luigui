@@ -4,15 +4,16 @@ STACK ENDS
 
 DATOS SEGMENT
     MSJDESPEDIDA DB 10, 13, "HASTA LUEGO", 01H, 10,13,"$"
-    MSJ DB 10, 13, "BIENVENIDAD", 01H, 10,13,"$"
-    NUM1 DB 10, 13, 10, 13 "VALOR NUMERO 1: ", 10,13,"$"
-    NUM2 DB 10, 13, 10, 13"VALOR NUMERO 2: ",  10,13,"$"
-    RES DB 10, 13,10,"ELIGE TU OPERADOR (+,-,*,/): ",  10,13,"$"
+    MSJBIEN DB "BIENVENIDO",10,13,"$"
+    NUM1 DB 10, 13, "VALOR NUMERO 1: ", 10,13,"$"
+    NUM2 DB  10, 13, "VALOR NUMERO 2: ",  10,13,"$"
+    RES DB 10, 13,10,"ELIGE TU OPERADOR (s = suma,r = resta,m = multiplicacion,d = division): ",  10,13,"$"
     RADD DB "SUMA: ",10, 13,"$"
     RSUB DB "RESTA: ",10, 13,"$"
     RMUL DB "MULTIPLICACION:",10,13,"$"
     RDIV DB "DIVICION: ",10,13,"$"
     RTOTAL DB "RESULTADO: ",10,13,"$"
+    OP DB 0
     VAR1 DB 0
     VAR2 DB 0
 DATOS ENDS
@@ -22,16 +23,38 @@ CODIGO SEGMENT
     ASSUME CS:CODIGO,DS:DATOS,SS:STACK
 
 MIPROC PROC FAR
+
     PUSH DS 
     SUB AX,AX ;PARA RESTA
     PUSH AX
     MOV AX,DATOS
     MOV DS,AX
+    ;*******************MENSAJE DE BIENVENIDA
+    mov ah,09h
+    lea dx, MSJBIEN
+    int 21h
     
-    LEA DX, CADENA ;aQU? COMIENZA MI VERDADERO PROGRAMA
-    MOV AH, 09H
-    INT 21H
-
+    ;**********************
+    mov ah,09h
+    lea dx, NUM1
+    int 21h
+    mov ah,01h
+    int 21h
+    ;**********************
+    mov ah,09h
+    lea dx, NUM2
+    int 21h
+    mov ah,01h
+    int 21h
+    ;**********************
+    mov ah,09h
+    lea dx, RES
+    int 21h
+    mov ah,01h
+    int 21h
+    
+    
+    
     ;LEE LA RESPUESTA
     MOV AH, 07H
     INT 21H
@@ -59,7 +82,7 @@ MIPROC PROC FAR
     MOV SI, 00H
 
     ;SALTO SUMA
-    L1:	
+    L1: 
         ADD BL, VAR1
         MOV AH, 09H
 
@@ -74,7 +97,7 @@ MIPROC PROC FAR
 
     ;SALTO RESTA
     L2:
-    	SUB BL, VAR1
+        SUB BL, VAR1
         MOV AH, 09H
 
         LEA DX, RES
@@ -86,17 +109,12 @@ MIPROC PROC FAR
 
         JA SALIR;SALIR
 
+    ;SALTO MULTIPLICACI?N
     ;SALTO MULTIPLICACIÓN
     L3:
         MOV AH, 09H
         LEA DX, RMUL
         INT 21H
-
-    	MOV AL, VAR1
-        MOV BL, VAR1
-        MOV BL
-        
-        MOV DL, AL
         ADD DL, 30H
         MOV AH, 02h
         INT 21H
@@ -127,41 +145,6 @@ MIPROC PROC FAR
         RET ;PARA RETORNAR EL CONTROL
     
 MIPROC ENDP ;CIERRA MIPRC FAR
-
-
-MALECHO PROC NEAR 
-        PUSH AX 
-        PUSH BX 
-        PUSH CS 
-        PUSH DX
-
-        MOV AH, 09H
-        LEA DX, CADENAMALA
-        INT 21H
-
-        POP DX 
-        POP CX 
-        POP BX 
-        POP AX 
-        RET 
-MALECHO ENDP 
-
-BIENECHO PROC NEAR 
-        PUSH AX 
-        PUSH BX 
-        PUSH CS 
-        PUSH DX
-
-        MOV AH, 09H
-        LEA DX, CADENABUENA
-        INT 21H
-
-        POP DX 
-        POP CX 
-        POP BX 
-        POP AX 
-        RET 
-BIENECHO ENDP 
 
 
 CODIGO ENDS ;CIERRA EL SEGMENTO DE COTIGO
