@@ -35,25 +35,25 @@ MIPROC PROC FAR
     int 21h
     
     ;**********************
+    mov ah,09h
+    lea dx, NUM1
+    int 21h
     mov ah,01h
     int 21h
     sub al,30h ;restar 30h para obtener el numero
     mov VAR1,al
-    mov ah,09h
-    lea dx, NUM1
-    int 21h
     
     
     
     ;int 21h
     ;**********************
+    mov ah,09h
+    lea dx, NUM2
+    int 21h
     mov ah,01h
     int 21h
     sub al,30h ;restar 30h para obtener el numero
     mov VAR2,al
-    mov ah,09h
-    lea dx, NUM2
-    int 21h
 
     ;mov ah,01h
     
