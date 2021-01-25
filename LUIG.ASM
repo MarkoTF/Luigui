@@ -43,16 +43,16 @@ MIPROC PROC FAR
 
     
     ;sALTA SI ES "n"
-    CMP RES, "s"
+    CMP OP, "s"
     JE L1
 
-    CMP RES, "r"
+    CMP OP, "r"
     JE L2
 
-    CMP RES, "m"
+    CMP OP, "m"
     JE L3
 
-    CMP RES, "d"
+    CMP OP, "d"
     JE L4
 
     
@@ -77,7 +77,7 @@ MIPROC PROC FAR
     	SUB BL, VAR1
         MOV AH, 09H
 
-        LEA DX, RADD
+        LEA DX, RES
         INT 21H
         MOV DL, BL
         ADD DL, 30H
@@ -88,12 +88,15 @@ MIPROC PROC FAR
 
     ;SALTO MULTIPLICACIÓN
     L3:
-    	ADD BL, VAR1
         MOV AH, 09H
-
-        LEA DX, RADD
+        LEA DX, RMUL
         INT 21H
-        MOV DL, BL
+
+    	MOV AL, VAR1
+        MOV BL, VAR1
+        MOV BL
+        
+        MOV DL, AL
         ADD DL, 30H
         MOV AH, 02h
         INT 21H
