@@ -142,16 +142,22 @@ MIPROC PROC FAR
 
     ;sALTO DIVIDIR
     L4:
-        ADD BL, VAR1
-        MOV AH, 09H
-
-        LEA DX, RDIV
-        INT 21H
-        MOV DL, BL
-        ADD DL, 30H
-        MOV AH, 02h
-        INT 21H
-
+        
+        MOV AH,09h
+        LEA DX,RDIV ;desplegar div
+        INT 21h
+        XOR AX,AX ;limpiamos el registro ax. 
+        MOV AL,VAR2
+        MOV BL,AL
+        MOV AL,VAR1
+        DIV BL ; divide AX/BX el resultado lo almacena en AX, el residuo queda en DX
+        MOV BL,AL
+        MOV DL,BL
+        ADD DL,30h
+        MOV AH,02h
+        INT 21h
+        
+        
         JA SALIR;SALIR
 
     ;sALTO SALIR
