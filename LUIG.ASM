@@ -3,44 +3,22 @@ STACK SEGMENT STACK
 STACK ENDS
 
 DATOS SEGMENT
-	CADENAGRACIAS DB 10,13,"GRACIAS, VUELVA PRONTO!!!", 01H, 10,13,"$"
-    CADENA DB "Buenas, usted sabe que dia es? [s/n] --> ", "$"
-    CADENAMALA DB 10,13,10,13,"Usted a sido afectado severamente por la cuarentena", 10,13,"$"
-    CADENABUENA DB 10,13,"Felicidades, usted ha aguantado bien la cuarentena", 10,13,"$"
-    ARRAY DB 53H, 53H, 40H, 53H, 40H
+    MSG db 10, 13, "BIENVENIDAD", 01H, 10,13,"$"
+    NUM1 db 10, 13, 10, 13 "VALOR NUMERO 1: ", 10,13,"$"
+    NUM2 db 10, 13, 10, 13"VALOR NUMERO 2: ",  10,13,"$"
+    RES db 10, 13,10,"ELIGE TU OPERADOR: ",  10,13,"$"
+    RADD db "SUMA: ",10,"$"
+    RSUB db "RESTA: ",10,"$"
+    RMUL db "MULTIPLICACION:",10,"$"
+    RADD db "DIVICION: ",10,"$"
+    RTOTAL db "RESULTADO: ",10,"$"
+    VAR1 DB 0
+    VAR2 DB 0
 DATOS ENDS
 
 
 CODIGO SEGMENT
     ASSUME CS:CODIGO,DS:DATOS,SS:STACK
-
-    COLORES MACRO COLOR ;MACRO QUE RECIBE UN PARAMETRO
-		PUSH AX ;PUSH SALVA EL CONTEXTO
-		PUSH BX ;METIENDO LOS VALORES DE LOS
-		PUSH CX
-		PUSH DX
-
-		;CABIAR cOLOR
-       	MOV AX,0600H
-       	;MOV BH,53H ;fondo morado(5), letra azul(0)
-       	MOV BH,COLOR ;fondo morado(5), letra azul(0)
-       	MOV CX,0000H ;de pOSISCIÓN IZQUIERDA SUPERIOR
-       	MOV DX,184FH ;a posición derecha inferior
-       	INT 10H
-
-       	;FIJAR CURSOR EN POSISCION 00:00
-       	MOV AH,02h ;SOLICITOD DE CAMBIO DE POSISCION
-       	MOV BX,00 ;PAGINA NUMERO 0
-       	MOV DX,0000 ;HILERA 0, COLUMNA 0
-       	INT 10H
-
-		POP DX ;ANTES DE SALIR DEL PROCEDIMIENTO
-		POP CX ;DEBERAS REGRESAR LOS VALORES
-		POP BX ;REGISTRO AL ORDEN INVERSO AL
-		POP AX ;QUE ENTRARON A LA PILA CON POP
-	ENDM ;FINALIZA LA MACRO
-
-
 
 MIPROC PROC FAR
     PUSH DS 
@@ -95,71 +73,90 @@ MIPROC PROC FAR
 
     ;SALTO RESTA
     L2:
-    	MOV AH,2CH
-    	INT 21H
+    	SUB BL, VAR1
+        MOV AH, 09H
 
-    	CMP AL, DH
-    	JB L1 ;salta si dh es mayor que al
+        LEA DX, RADD
+        INT 21H
+        MOV DL, BL
+        ADD DL, 30H
+        MOV AH, 02h
+        INT 21H
 
-    	LOOP L3
+        JA SALIR;SALIR
 
     ;SALTO MULTIPLICACIÓN
     L3:
-    	CALL BIENECHO
+    	ADD BL, VAR1
+        MOV AH, 09H
 
-    	CMP SI, 04H
-    	JA SALIR;SALIR
+        LEA DX, RADD
+        INT 21H
+        MOV DL, BL
+        ADD DL, 30H
+        MOV AH, 02h
+        INT 21H
 
-    ;sALTA DIVICIÓN
+        JA SALIR;SALIR
+
+    ;sALTO DIVIDIR
     L4:
+        ADD BL, VAR1
+        MOV AH, 09H
 
-    	COLORES 0FH ;Color de fondo negro, el color de letra blanco
-    	CALL MALECHO
+        LEA DX, RADD
+        INT 21H
+        MOV DL, BL
+        ADD DL, 30H
+        MOV AH, 02h
+        INT 21H
 
-    ;SALTO SALIR
+        JA SALIR;SALIR
+
+    ;sALTO SALIR
     SALIR:
-    	;CADENA DE GRACIAS
-    	MOV AH, 09H
-		LEA DX, CADENAGRACIAS
-		INT 21H
+        ;CADENA DE GRACIAS
+        MOV AH, 09H
+        LEA DX, MSJDESPEDIDA
+        INT 21H
     
-    	RET ;PARA RETORNAR EL CONTROL
+        RET ;PARA RETORNAR EL CONTROL
     
 MIPROC ENDP ;CIERRA MIPRC FAR
 
 
 MALECHO PROC NEAR 
-		PUSH AX 
-		PUSH BX 
-		PUSH CS 
-		PUSH DX
+        PUSH AX 
+        PUSH BX 
+        PUSH CS 
+        PUSH DX
 
-		MOV AH, 09H
-		LEA DX, CADENAMALA
-		INT 21H
+        MOV AH, 09H
+        LEA DX, CADENAMALA
+        INT 21H
 
-		POP DX 
-		POP CX 
-		POP BX 
-		POP AX 
-		RET 
+        POP DX 
+        POP CX 
+        POP BX 
+        POP AX 
+        RET 
 MALECHO ENDP 
 
 BIENECHO PROC NEAR 
-		PUSH AX 
-		PUSH BX 
-		PUSH CS 
-		PUSH DX
+        PUSH AX 
+        PUSH BX 
+        PUSH CS 
+        PUSH DX
 
-		MOV AH, 09H
-		LEA DX, CADENABUENA
-		INT 21H
+        MOV AH, 09H
+        LEA DX, CADENABUENA
+        INT 21H
 
-		POP DX 
-		POP CX 
-		POP BX 
-		POP AX 
-		RET 
+        POP DX 
+        POP CX 
+        POP BX 
+        POP AX 
+        RET 
 BIENECHO ENDP 
 
 
