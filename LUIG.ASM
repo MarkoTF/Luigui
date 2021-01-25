@@ -6,11 +6,11 @@ DATOS SEGMENT
     MSG db 10, 13, "BIENVENIDAD", 01H, 10,13,"$"
     NUM1 db 10, 13, 10, 13 "VALOR NUMERO 1: ", 10,13,"$"
     NUM2 db 10, 13, 10, 13"VALOR NUMERO 2: ",  10,13,"$"
-    RES db 10, 13,10,"ELIGE TU OPERADOR: ",  10,13,"$"
+    RES db 10, 13,10,"ELIGE TU OPERADOR (+,-,*,/): ",  10,13,"$"
     RADD db "SUMA: ",10,"$"
     RSUB db "RESTA: ",10,"$"
     RMUL db "MULTIPLICACION:",10,"$"
-    RADD db "DIVICION: ",10,"$"
+    RDIV db "DIVICION: ",10,"$"
     RTOTAL db "RESULTADO: ",10,"$"
     VAR1 DB 0
     VAR2 DB 0
