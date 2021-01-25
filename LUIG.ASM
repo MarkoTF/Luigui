@@ -64,36 +64,37 @@ MIPROC PROC FAR
 
     
     ;sALTA SI ES "n"
-    CMP AL, "n"
-    JE L2
-
-    CMP AL, "s"
+    CMP RES, "s"
     JE L1
 
+    CMP RES, "r"
+    JE L2
 
+    CMP RES, "m"
+    JE L3
+
+    CMP RES, "d"
+    JE L4
 
     
     MOV SI, 00H
+
+    ;SALTO SUMA
     L1:	
-    	;RECUPERAR LA HORA DEL SISTEMA
-    	MOV AH,2CH
-    	INT 21H
+        ADD BL, VAR1
+        MOV AH, 09H
 
-    	;RECUPERO LOS SEGUNDOS EN "AL"
-    	INC DH
-    	MOV AL, DH
+        LEA DX, RADD
+        INT 21H
+        MOV DL, BL
+        ADD DL, 30H
+        MOV AH, 02h
+        INT 21H
 
-    	;INCREMENTO 1 APUNTADOR DEL ARRAY
-    	INC SI
+        JA SALIR;SALIR
 
-    	CMP SI, 04H
-    	JA L4;IMPRIMIR CADENA Y SALIR
-
-    	;cAMBIO DE COLOR
-    	COLORES ARRAY[SI]
-
-    ;CICLO PARA EL TIEMPO
-    L3:
+    ;SALTO RESTA
+    L2:
     	MOV AH,2CH
     	INT 21H
 
@@ -102,17 +103,20 @@ MIPROC PROC FAR
 
     	LOOP L3
 
-    L4:
+    ;SALTO MULTIPLICACIÓN
+    L3:
     	CALL BIENECHO
 
     	CMP SI, 04H
     	JA SALIR;SALIR
 
-    L2:
+    ;sALTA DIVICIÓN
+    L4:
 
     	COLORES 0FH ;Color de fondo negro, el color de letra blanco
     	CALL MALECHO
 
+    ;SALTO SALIR
     SALIR:
     	;CADENA DE GRACIAS
     	MOV AH, 09H
