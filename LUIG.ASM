@@ -38,19 +38,23 @@ MIPROC PROC FAR
     mov ah,09h
     lea dx, NUM1
     int 21h
+    mov var1,al
     mov ah,01h
+    
     int 21h
     ;**********************
     mov ah,09h
     lea dx, NUM2
     int 21h
     mov ah,01h
+    mov var2,al
     int 21h
     ;**********************
     mov ah,09h
     lea dx, RES
     int 21h
     mov ah,01h
+    mov op,al
     int 21h
     
     
