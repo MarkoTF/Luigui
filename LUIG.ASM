@@ -160,6 +160,20 @@ MIPROC PROC FAR
         
         JA SALIR;SALIR
 
+    ;POTENCIA
+    L5:
+        ADD BL, VAR1
+        MOV AH, 09H
+
+        LEA DX, RADD
+        INT 21H
+        MOV DL, BL
+        ADD DL, 30H
+        MOV AH, 02h
+        INT 21H
+
+        JA SALIR;SALIR
+
     ;sALTO SALIR
     SALIR:
         ;CADENA DE GRACIAS
