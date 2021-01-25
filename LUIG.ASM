@@ -55,13 +55,13 @@ MIPROC PROC FAR
     lea dx, RES
     int 21h
     mov ah,01h
-    mov OP,al
     int 21h
     
     
     
     ;LEE LA RESPUESTA
     MOV AH, 07H
+    mov OP,al
     INT 21H
 
     ;iMPRIME LA RESPUESTA
@@ -105,7 +105,7 @@ MIPROC PROC FAR
         SUB BL, VAR1
         MOV AH, 09H
 
-        LEA DX, RES
+        LEA DX, RSUB
         INT 21H
         MOV DL, BL
         ADD DL, 30H
@@ -131,7 +131,7 @@ MIPROC PROC FAR
         ADD BL, VAR1
         MOV AH, 09H
 
-        LEA DX, RADD
+        LEA DX, RDIV
         INT 21H
         MOV DL, BL
         ADD DL, 30H
