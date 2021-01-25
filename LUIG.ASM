@@ -124,7 +124,7 @@ MIPROC PROC FAR
 
         JA SALIR;SALIR
 
-    ;SALTO MULTIPLICACIÓN
+    ;SALTO MULTIPLICACI?N
     L3:
         MOV AH, 09H
         LEA DX, RMUL
@@ -133,6 +133,7 @@ MIPROC PROC FAR
         MOV AL, VAR1
         MOV BL, VAR2
         MUL BL
+        MOV DL,AL
         ADD DL, 30H
         MOV AH, 02h
         INT 21H
