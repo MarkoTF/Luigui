@@ -3,18 +3,17 @@ STACK SEGMENT STACK
 STACK ENDS
 
 DATOS SEGMENT
-    MSJDESPEDIDA DB 10, 13, "HASTA LUEGO","$"
+    MSJDESPEDIDA DB 10, 10, 13, "HASTA LUEGO","$"
     MSJBIEN DB "BIENVENIDO",10, 13, "$"
     NUM1 DB 10, 13, "VALOR NUMERO 1: ","$"
     NUM2 DB  10, 13, "VALOR NUMERO 2: ","$"
     RES DB 10, 13,10,"ELIGE TU OPERADOR (s = suma,r = resta,m = multiplicacion,d = division, p = potencia): ","$"
-    RADD DB 10, 13,"SUMA: ","$"
-    RSUB DB 10, 13,"RESTA: ","$"
-    RMUL DB 10, 13,"MULTIPLICACION:","$"
-    RDIV DB 10, 13,"DIVICION: ","$"
-    RPOT DB 10, 13,"POTENCIA: ","$"
-    RTOTAL DB 10, 13,"RESULTADO: ","$"
-    MJSINVALIDO DB 10, 13,"OPCION INCORRECTA ","$"
+    RADD DB 10,10, 13,"SUMA: ","$"
+    RSUB DB 10,10, 13,"RESTA: ","$"
+    RMUL DB 10,10,10, 13,"MULTIPLICACION: ","$"
+    RDIV DB 10,10, 13,"DIVICION: ","$"
+    RPOT DB 10,10, 13,"POTENCIA: ","$"
+    MJSINVALIDO DB 10,10, 13,"OPCION INCORRECTA ","$"
     OP DB 0
     VAR1 DB 0
     VAR2 DB 0
@@ -24,6 +23,35 @@ DATOS ENDS
 CODIGO SEGMENT
     ASSUME CS:CODIGO,DS:DATOS,SS:STACK
 
+POTENCIAM MACRO NUMERO, POTENCIA ;MACRO QUE RECIBE UN PARAMETRO
+    ;PUSH AX ;PUSH SALVA EL CONTEXTO
+    ;PUSH BX ;METIENDO LOS VALORES DE LOS
+    ;PUSH CX
+    ;PUSH DX
+
+    MOV AL, NUMERO
+    MOV OP, AL
+
+    CICLO:
+        DEC POTENCIA
+        CMP POTENCIA, 0
+        JLE FIN
+
+        MOV AL, OP
+        MOV BL, NUMERO
+        MUL BL
+        MOV OP, AL
+
+        LOOP CICLO
+    FIN:
+        ;RET
+
+    ;POP DX ;ANTES DE SALIR DEL PROCEDIMIENTO
+    ;POP CX ;DEBERAS REGRESAR LOS VALORES
+    ;POP BX ;REGISTRO AL ORDEN INVERSO AL
+    ;POP AX ;QUE ENTRARON A LA PILA CON POP
+ENDM ;FINALIZA LA MACRO
+
 MIPROC PROC FAR
 
     PUSH DS 
@@ -31,6 +59,11 @@ MIPROC PROC FAR
     PUSH AX
     MOV AX,DATOS
     MOV DS,AX
+
+    mov ah,00h
+    mov al,03h
+    int 10h
+
     ;*******************MENSAJE DE BIENVENIDA
     mov ah,09h
     lea dx, MSJBIEN
@@ -72,17 +105,10 @@ MIPROC PROC FAR
     ;LEE LA RESPUESTA
     MOV AH, 07H
     mov OP,al
-    INT 21H
-
-    ;iMPRIME LA RESPUESTA
-    MOV AH, 02h
-    MOV DL, AL
-    INT 21H
 
     mov bl,VAR2 ;mover a bl
-    int 21h
 
-    ;sALTA SI ES "n"
+    ;sALTA dependiedo de la respuesta
     CMP OP, "s"
     JE SUMA
 
@@ -173,17 +199,12 @@ MIPROC PROC FAR
         LEA DX, RPOT
         INT 21H
 
-        CALL POTENCIAOP
+        POTENCIAM VAR1, VAR2
 
         MOV DL,OP
         ADD DL, 30H
         MOV AH, 02h
         INT 21H
-
-        ;MOV DL, BL
-        ;ADD DL, 30H
-        ;MOV AH, 02h
-        ;INT 21H
 
         JMP SALIR;SALIR
 
@@ -205,42 +226,6 @@ MIPROC PROC FAR
         RET ;PARA RETORNAR EL CONTROL
     
 MIPROC ENDP ;CIERRA MIPRC FAR
-
-POTENCIAOP PROC NEAR 
-        ;PUSH AX 
-        ;PUSH BX 
-        ;PUSH CS 
-        ;PUSH DX
-        MOV AL, VAR1
-        MOV OP, AL
-        DEC VAR2
-
-        CICLO:
-            MOV AL, OP
-            MOV BL, VAR1
-            MUL BL
-            MOV OP, AL
-            
-
-            DEC VAR2
-            JZ FIN
-
-            LOOP CICLO
-
-        FIN:
-            RET 
-
-
-        ;MOV AH, 09H
-        ;LEA DX, RPOT
-        ;INT 21H
-
-        ;POP DX 
-        ;POP CX 
-        ;POP BX 
-        ;POP AX 
-        
-POTENCIAOP ENDP 
 
 CODIGO ENDS ;CIERRA EL SEGMENTO DE COTIGO
 END MIPROC
