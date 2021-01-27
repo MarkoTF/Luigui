@@ -4,6 +4,7 @@ STACK ENDS
 
 DATOS SEGMENT
     MSJDESPEDIDA DB 10, 10, 13, "HASTA LUEGO","$"
+    MSJGRACIAS DB 10, 10, 13, "GRACIAS","$"
     MSJBIEN DB "BIENVENIDO",10, 13, "$"
     NUM1 DB 10, 13, "VALOR NUMERO 1: ","$"
     NUM2 DB  10, 13, "VALOR NUMERO 2: ","$"
@@ -14,6 +15,7 @@ DATOS SEGMENT
     RDIV DB 10,10, 13,"DIVICION: ","$"
     RPOT DB 10,10, 13,"POTENCIA: ","$"
     MJSINVALIDO DB 10,10, 13,"OPCION INCORRECTA ","$"
+    MJSREENVIO DB 10,10, 13,"DESEA PROBAR CON OTRO OPERADOR S/N: ","$"
     OP DB 0
     VAR1 DB 0
     VAR2 DB 0
@@ -94,6 +96,7 @@ MIPROC PROC FAR
     
     
     ;**********************
+ DEVUELTA proc near   ; INICIO DEL PROCEDIMIENTO 
     mov ah,09h
     lea dx, RES
     int 21h
@@ -125,7 +128,9 @@ MIPROC PROC FAR
     JE POTENCIA
 
     JMP INVALIDO
-
+    
+   ret
+   DEVUELTA endp ; FIN DEL PROCEDIMIENTO
     
     ;MOV SI, 00H
 
@@ -222,9 +227,61 @@ MIPROC PROC FAR
         MOV AH, 09H
         LEA DX, MSJDESPEDIDA
         INT 21H
+        
+  mov ah,09h
+    lea dx, MJSREENVIO
+    int 21h
+    mov ah,01h
+    int 21h
+    
+    ;----------- llamar a otro operador   
+    
+    ;LEE LA RESPUESTA
+    MOV AH, 07H
+    mov OP,al
+
+    ;sALTA dependiedo de la respuesta
+    CMP OP, "S"
+    JE DENUEVO
+    
+    CMP OP, "N"
+    JE AGRADECIMIENTO
+    
+     JMP INVAL
+
+    DENUEVO:
+        CALL DEVUELTA
+    
+        AGRADECIMIENTO:
+        ;CADENA DE GRACIAS
+        MOV AH, 09H
+        LEA DX, MSJGRACIAS
+        INT 21H
+        JMP SLR
+     
+    INVAL:
+        MOV AH, 09H
+        LEA DX, MJSINVALIDO
+        INT 21H
+
+        JMP SLR
+
+
+    ;sALTO SALIR
+    SLR:
+        
+        MOV AH, 09H
+        LEA DX, MSJDESPEDIDA
+        INT 21H
+    
+        RET ;PARA RETORNAR EL CONTROL DEL 2 CMP
     
         RET ;PARA RETORNAR EL CONTROL
-    
+        
+
+        ;---------------------------------------------
+        
+  
 MIPROC ENDP ;CIERRA MIPRC FAR
 
 CODIGO ENDS ;CIERRA EL SEGMENTO DE COTIGO
